@@ -2,6 +2,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import frc.robot.commands.AlignToAprilTagCommand;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.HoodSubsystem;
@@ -22,6 +24,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 
 
@@ -41,6 +45,9 @@ public class RobotContainer {
   private final HoodSubsystem HoodSubsystem = new HoodSubsystem(9);
   private final IntakeSubsystem Intakekraken = new IntakeSubsystem();
   private final IntakeLiftSubsystem intakeLiftSubsystem = new IntakeLiftSubsystem();
+  private final LimelightSubsystem limelight = new LimelightSubsystem();
+
+
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -76,18 +83,23 @@ public class RobotContainer {
     intakeLiftSubsystem.setDefaultCommand(
     Commands.run(() -> intakeLiftSubsystem.stop(), intakeLiftSubsystem)
 );
- // HoodSubsystem.setDefaultCommand(
-   // Commands.run(() -> HoodSubsystem.stop(), HoodSubsystem)
- // );
+  HoodSubsystem.setDefaultCommand(
+  Commands.run(() -> HoodSubsystem.stop(), HoodSubsystem)
+  );
 
-    joystick.a().onTrue(new SpindexerCommand(Spindexerkraken));
-    joystick.y().onTrue(new ShooterCommand(Shooterkraken));
-    joystick.x().onTrue(new HoodCommand(HoodSubsystem, frc.robot.subsystems.HoodSubsystem.Hardstop));
+    joystick.leftTrigger().onTrue(new SpindexerCommand(Spindexerkraken));
+    joystick.rightTrigger().onTrue(new ShooterCommand(Shooterkraken));
+    joystick.y().onTrue(new HoodCommand(HoodSubsystem, frc.robot.subsystems.HoodSubsystem.Hardstop));
     joystick.b().onTrue(new HoodCommand(HoodSubsystem, frc.robot.subsystems.HoodSubsystem.TestPosition));
-    joystick.rightTrigger().onTrue(new IntakeCommand(Intakekraken));
-    joystick.leftBumper().debounce(0.1).onTrue(new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.POSITION_UP));
-    joystick.rightBumper().debounce(0.1).onTrue(new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.POSITION_DOWN));
-  
+    joystick.x().onTrue(new IntakeCommand(Intakekraken));
+    joystick.povUp().debounce(0.1).onTrue(new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.POSITION_UP));
+    joystick.povDown().debounce(0.1).onTrue(new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.POSITION_DOWN));
+    joystick.leftTrigger().debounce(0.1).onTrue(new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.Zero));
+    joystick.start().onTrue(new HoodCommand(HoodSubsystem, frc.robot.subsystems.HoodSubsystem.TestPosition));
+    joystick.b().onTrue(Commands.runOnce(() -> limelight.toggleAutoAlign()));
+     new Trigger(() -> limelight.isAutoAlignEnabled())
+    .whileTrue(new AlignToAprilTagCommand(limelight, drivetrain));
+
   }
   
   /**
@@ -97,11 +109,12 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return null; // Replace with your actual autonomous command
+    return new AlignToAprilTagCommand(limelight, drivetrain);
   }
-
+ 
   public void SetDriveTrainSpeed(double speed){
     MaxSpeed = speed;
     drive.withDeadband(MaxSpeed * 0.1); // Update the deadband based on the new MaxSpeed
   }
+  
 }

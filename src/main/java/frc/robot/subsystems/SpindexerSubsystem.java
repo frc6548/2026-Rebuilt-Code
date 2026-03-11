@@ -11,7 +11,7 @@ public class SpindexerSubsystem extends SubsystemBase{
         private final DutyCycleOut dutyCycle = new DutyCycleOut(0);
 
     public void spin() {
-        Spindexermotor.setControl(dutyCycle.withOutput(-1)); // 0.5 = 50% speed, adjust as needed
+        Spindexermotor.setControl(dutyCycle.withOutput(1)); // 0.5 = 50% speed, adjust as needed
     }
 
     public void stop() {

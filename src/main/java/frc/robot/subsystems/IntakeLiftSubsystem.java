@@ -17,7 +17,8 @@ public class IntakeLiftSubsystem extends SubsystemBase {
     // Set these by reading Elastic after manually moving the intake
     public static final double POSITION_UP   = 7.41455078125;  // Tune this
     public static final double POSITION_DOWN = 47.01220703125;  // Tune this (5:1 ratio so ~0.6 real rotations)
-
+    public static final double Zero = 0;
+    
     public IntakeLiftSubsystem() {
         intakeLift = new TalonFX(13);
 

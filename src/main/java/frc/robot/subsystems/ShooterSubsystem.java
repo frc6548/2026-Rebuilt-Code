@@ -20,7 +20,7 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void spin() {
-        Shootermotor.setControl(dutyCycle.withOutput(1));
+        Shootermotor.setControl(dutyCycle.withOutput(.75));
     }
 
     public void stop() {

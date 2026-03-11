@@ -20,7 +20,7 @@ public class HoodSubsystem extends SubsystemBase {
     private final StaticBrake brakeRequest = new StaticBrake();
 
     public static final double Hardstop     = 0;
-    public static final double TestPosition = 5;
+    public static final double TestPosition = 2.32421875;
 
     private final TalonFX hoodMotor;
 
@@ -29,12 +29,12 @@ public class HoodSubsystem extends SubsystemBase {
 
         TalonFXConfiguration config = new TalonFXConfiguration();
 
-        config.Slot0.kP = 15.0;
+        config.Slot0.kP = 10.0;
         config.Slot0.kI = 0.0;
         config.Slot0.kD = 0.1;
         config.Slot0.kS = 0.3;
         config.Slot0.kV = 0.12;
-        config.Slot0.kG = 1;
+        config.Slot0.kG = .2;
 
         config.MotionMagic.MotionMagicCruiseVelocity = 80;
         config.MotionMagic.MotionMagicAcceleration   = 160;
@@ -45,9 +45,9 @@ public class HoodSubsystem extends SubsystemBase {
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable    = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 11.0;
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable    = true;
-        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -0.5;
+        config.SoftwareLimitSwitch.ReverseSoftLimitThreshold = -5;
 
-        config.CurrentLimits.StatorCurrentLimit       = 120;
+        config.CurrentLimits.StatorCurrentLimit       = 100;
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         hoodMotor.getConfigurator().apply(config);
@@ -77,11 +77,11 @@ System.out.println(">>> Config status: " + hoodMotor.getConfigurator().apply(con
     private final NeutralOut neutralRequest = new NeutralOut();
 
     public void stop() {
-     hoodMotor.setControl(neutralRequest);
+     hoodMotor.setControl(brakeRequest);
     }
 
     public boolean atTarget(double targetRotations) {
-        return Math.abs(getPosition() - targetRotations) < 0.02;
+        return Math.abs(getPosition() - targetRotations) < 0.1;
     }
 
     @Override
