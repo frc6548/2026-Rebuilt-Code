@@ -21,7 +21,9 @@ public class HoodSubsystem extends SubsystemBase {
 
     public static final double Hardstop     = 0;
     public static final double TestPosition = 2.32421875;
-
+    public static final double Zero = -2.32421875;//to reset the hood back to zero if hood is left up
+    public static final double UP = 5;
+    public static final double DOWN = -1;
     private final TalonFX hoodMotor;
 
     public HoodSubsystem(int motorCanId) {
@@ -79,6 +81,13 @@ System.out.println(">>> Config status: " + hoodMotor.getConfigurator().apply(con
     public void stop() {
      hoodMotor.setControl(brakeRequest);
     }
+
+    public void PosotiveincrementPosition() {
+    hoodMotor.setControl(positionRequest.withPosition(getPosition() + 0.5));
+}
+    public void NegativeincrementPosition() {
+    hoodMotor.setControl(positionRequest.withPosition(getPosition() - 0.5));
+}
 
     public boolean atTarget(double targetRotations) {
         return Math.abs(getPosition() - targetRotations) < 0.1;

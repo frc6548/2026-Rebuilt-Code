@@ -114,6 +114,10 @@ public class Telemetry {
         fieldTypePub.set("Field2d");
         fieldPub.set(m_poseArray);
 
+        // Update field widget with the filtered odometry pose
+        // (vision measurements are handled in Robot.java)
+        m_field.setRobotPose(state.Pose);
+
         /* Telemeterize the module states to a Mechanism2d */
         for (int i = 0; i < 4; ++i) {
             m_moduleSpeeds[i].setAngle(state.ModuleStates[i].angle);
@@ -122,9 +126,6 @@ public class Telemetry {
 
             SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
             SmartDashboard.putData("Field", m_field);
-            
-    
-            
         }
     }
 }

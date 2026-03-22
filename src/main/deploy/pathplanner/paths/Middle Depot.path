@@ -1,0 +1,132 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.65,
+        "y": 4.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.5856301640136117,
+        "y": 5.93549970565101
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.36533704196013217,
+        "y": 7.277767820346977
+      },
+      "prevControl": {
+        "x": 0.3865758649970974,
+        "y": 7.726142973349577
+      },
+      "nextControl": {
+        "x": 0.31992195537267454,
+        "y": 6.3190048812784285
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.36533704196013217,
+        "y": 5.017105732437979
+      },
+      "prevControl": {
+        "x": 0.3511038034437406,
+        "y": 5.439358475090926
+      },
+      "nextControl": {
+        "x": 0.3804754041559514,
+        "y": 4.568000987295344
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.4326410256410265,
+        "y": 4.564083333333333
+      },
+      "prevControl": {
+        "x": 1.9675128205128218,
+        "y": 5.581551282051282
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.0,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 2.0,
+      "rotationDegrees": -90.0
+    }
+  ],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "Intake down and active",
+      "waypointRelativePos": 0.65,
+      "endWaypointRelativePos": null,
+      "command": null
+    },
+    {
+      "name": "Shooter Sequence",
+      "waypointRelativePos": 3.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "sequential",
+        "data": {
+          "commands": [
+            {
+              "type": "named",
+              "data": {
+                "name": "Align To Hub"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Shooter Sequence"
+              }
+            },
+            {
+              "type": "named",
+              "data": {
+                "name": "Shooter Sequence"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": null,
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": true
+}

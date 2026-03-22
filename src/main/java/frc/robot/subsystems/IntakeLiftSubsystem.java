@@ -15,9 +15,10 @@ public class IntakeLiftSubsystem extends SubsystemBase {
     private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0).withSlot(0);
 
     // Set these by reading Elastic after manually moving the intake
-    public static final double POSITION_UP   = 7.41455078125;  // Tune this
-    public static final double POSITION_DOWN = 47.01220703125;  // Tune this (5:1 ratio so ~0.6 real rotations)
+    public static final double POSITION_UP   = -4.8310546875;  // Tune this 7.41455078125
+    public static final double POSITION_DOWN = 37.39404296875;  // Tune this (5:1 ratio so ~0.6 real rotations) 47.01220703125;
     public static final double Zero = 0;
+    public static final double Dump = 15.4658203125;
     
     public IntakeLiftSubsystem() {
         intakeLift = new TalonFX(13);

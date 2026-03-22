@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 
 import java.util.Set;
 
@@ -14,8 +15,8 @@ public class LimelightSubsystem extends SubsystemBase {
     private final NetworkTable table;
 
     // 2026 FRC Hub tag IDs
-    private static final Set<Integer> RED_TAGS  = Set.of(2, 5, 8, 9, 10, 11);
-    private static final Set<Integer> BLUE_TAGS = Set.of(18, 21, 24, 25, 26, 27);
+   private static final Set<Integer> RED_TAGS  = Set.of(2, 3, 4, 5, 8, 9, 10, 11);
+   private static final Set<Integer> BLUE_TAGS = Set.of(18, 19, 20, 21, 24, 25, 26, 27);
 
     // Teleop auto-align toggle
     private boolean autoAlignEnabled = false;
@@ -123,11 +124,14 @@ public class LimelightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("Limelight Has Target",         hasTarget());
-        SmartDashboard.putBoolean("Limelight Valid Hub Tag",      isValidAllianceTag());
-        SmartDashboard.putBoolean("Auto Align Enabled",           autoAlignEnabled);
-        SmartDashboard.putNumber("Limelight TX",                  getTX());
-        SmartDashboard.putNumber("Limelight TY",                  getTY());
-        SmartDashboard.putNumber("Limelight Tag ID",              getAprilTagID());
+        SmartDashboard.putBoolean("Limelight Has Target",    hasTarget());
+        SmartDashboard.putBoolean("Limelight Valid Hub Tag", isValidAllianceTag());
+        SmartDashboard.putBoolean("Auto Align Enabled",      autoAlignEnabled);
+        SmartDashboard.putNumber("Limelight TX",             getTX());
+        SmartDashboard.putNumber("Limelight TY",             getTY());
+        SmartDashboard.putNumber("Limelight Tag ID",         getAprilTagID());
+        SmartDashboard.putNumber("Limelight Distance (in)",
+            hasTarget() ? LimelightHelpers.getTargetPose3d_CameraSpace("limelight")
+                .getTranslation().getNorm() * 39.3701 : -1);
     }
 }

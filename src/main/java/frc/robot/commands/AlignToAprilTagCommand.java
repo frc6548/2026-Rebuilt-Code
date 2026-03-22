@@ -1,66 +1,102 @@
 package frc.robot.commands;
 
-import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveRequest;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.LimelightHelpers;
+import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class AlignToAprilTagCommand extends Command {
 
     // -------------------------------------------------------------------------
-    // Tuning constants — adjust these on the robot
+    // Hood stability constants
     // -------------------------------------------------------------------------
-    private static final double kP           = 0.04; // Rotational P gain
-    private static final double kMinOutput   = 0.05; // Minimum power to overcome static friction
-    private static final double kMaxOutput   = 0.4;  // Cap rotation speed (rad/s)
-    private static final double kTolerance   = 1.0;  // Degrees of TX considered "aligned"
-    private static final int    kStableCount = 10;   // Loops within tolerance before finishing
+    private static final int kStableCount = 10; // loops hood must be stable
 
-    private final LimelightSubsystem      limelight;
-    private final CommandSwerveDrivetrain drive;
+    // -------------------------------------------------------------------------
+    // Hood distance-to-position lookup table
+    // *** TUNE THESE VALUES ON THE ROBOT ***
+    // -------------------------------------------------------------------------
+    private static final double[] DISTANCES      = { 66,   72,   78,   83   }; // inches
+    private static final double[] HOOD_POSITIONS = { 0.0,  0.31, 0.63, 0.89 }; // motor rotations
 
-    private final SwerveRequest.FieldCentric driveRequest = new SwerveRequest.FieldCentric()
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    private final LimelightSubsystem limelight;
+    private final HoodSubsystem      hood;
+    private final boolean            isAuto;
 
-    private int stableLoops = 0;
+    private int    stableLoops = 0;
+    private double hoodTarget  = 0.0;
 
-    public AlignToAprilTagCommand(LimelightSubsystem limelight, CommandSwerveDrivetrain drive) {
+    /**
+     * Teleop constructor — hood auto-adjusts, runs until B toggled off.
+     */
+    public AlignToAprilTagCommand(LimelightSubsystem limelight, HoodSubsystem hood) {
         this.limelight = limelight;
-        this.drive     = drive;
-        addRequirements(limelight, drive);
+        this.hood      = hood;
+        this.isAuto    = false;
+        addRequirements(hood);
+    }
+
+    /**
+     * Auto constructor — hood auto-adjusts, finishes when hood is stable.
+     * NO drivetrain control — PathPlanner handles all driving.
+     */
+    public AlignToAprilTagCommand(LimelightSubsystem limelight, HoodSubsystem hood,
+            boolean isAuto) {
+        this.limelight = limelight;
+        this.hood      = hood;
+        this.isAuto    = isAuto;
+        addRequirements(hood);
+    }
+
+    // -------------------------------------------------------------------------
+    // Distance calculation using LimelightHelpers 3D pose
+    // -------------------------------------------------------------------------
+    private double getDistanceInches() {
+        try {
+            return LimelightHelpers.getTargetPose3d_CameraSpace("limelight")
+                    .getTranslation().getNorm() * 39.3701;
+        } catch (Exception e) {
+            return -1;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Linear interpolation of hood position from distance
+    // -------------------------------------------------------------------------
+    private double getHoodPositionForDistance(double distanceInches) {
+        if (distanceInches <= DISTANCES[0]) return HOOD_POSITIONS[0];
+        if (distanceInches >= DISTANCES[DISTANCES.length - 1]) return HOOD_POSITIONS[HOOD_POSITIONS.length - 1];
+        for (int i = 0; i < DISTANCES.length - 1; i++) {
+            if (distanceInches >= DISTANCES[i] && distanceInches <= DISTANCES[i + 1]) {
+                double t = (distanceInches - DISTANCES[i]) / (DISTANCES[i + 1] - DISTANCES[i]);
+                return HOOD_POSITIONS[i] + t * (HOOD_POSITIONS[i + 1] - HOOD_POSITIONS[i]);
+            }
+        }
+        return HOOD_POSITIONS[0];
     }
 
     @Override
     public void initialize() {
         stableLoops = 0;
+        System.out.println(">>> AlignToAprilTag STARTED (auto=" + isAuto + ")");
     }
 
     @Override
     public void execute() {
         if (!limelight.hasValidTarget()) {
-            drive.setControl(driveRequest.withVelocityX(0).withVelocityY(0).withRotationalRate(0));
+            SmartDashboard.putNumber("Limelight Distance (in)", -1);
+            SmartDashboard.putNumber("Hood Target Position", -1);
             return;
         }
 
-        double tx = limelight.getTX();
+        double distance = getDistanceInches();
+        hoodTarget = getHoodPositionForDistance(distance);
+        SmartDashboard.putNumber("Limelight Distance (in)", distance);
+        SmartDashboard.putNumber("Hood Target Position", hoodTarget);
+        hood.setPosition(hoodTarget);
 
-        double rotation = tx * kP;
-
-        // Apply minimum output to overcome friction
-        if (Math.abs(rotation) < kMinOutput && Math.abs(tx) > kTolerance) {
-            rotation = Math.copySign(kMinOutput, rotation);
-        }
-
-        // Clamp to max output
-        rotation = Math.max(-kMaxOutput, Math.min(kMaxOutput, rotation));
-
-        drive.setControl(driveRequest
-                .withVelocityX(0)
-                .withVelocityY(0)
-                .withRotationalRate(rotation));
-
-        if (Math.abs(tx) < kTolerance) {
+        if (isAuto && hood.atTarget(hoodTarget)) {
             stableLoops++;
         } else {
             stableLoops = 0;
@@ -69,11 +105,12 @@ public class AlignToAprilTagCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        drive.setControl(driveRequest.withVelocityX(0).withVelocityY(0).withRotationalRate(0));
+        System.out.println(">>> AlignToAprilTag STOPPED" + (interrupted ? " (interrupted)" : " (finished)"));
     }
 
     @Override
     public boolean isFinished() {
+        if (!isAuto) return false;
         return stableLoops >= kStableCount;
     }
 }

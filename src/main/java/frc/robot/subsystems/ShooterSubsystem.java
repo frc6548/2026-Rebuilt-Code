@@ -4,6 +4,7 @@ import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class ShooterSubsystem extends SubsystemBase {
@@ -25,5 +26,16 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public void stop() {
         Shootermotor.setControl(dutyCycle.withOutput(0));
+    }
+    
+    public double getVelocityRPS() {
+        return Shootermotor.getVelocity().getValueAsDouble();
+    }
+ 
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Shooter Velocity (RPS)", getVelocityRPS());
+        SmartDashboard.putNumber("Shooter Velocity (RPM)", getVelocityRPS() * 60.0);
+         SmartDashboard.putNumber("Shooter Motor Output", Shootermotor.getMotorVoltage().getValueAsDouble());
     }
 }
