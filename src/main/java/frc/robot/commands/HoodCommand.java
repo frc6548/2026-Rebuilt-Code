@@ -4,21 +4,19 @@ import frc.robot.subsystems.HoodSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class HoodCommand extends Command {
-
-    private final HoodSubsystem hoodSubsystem;
+    private final HoodSubsystem hood;
     private final double targetPosition;
 
-    public HoodCommand(HoodSubsystem hoodSubsystem, double targetPosition) {
-        this.hoodSubsystem = hoodSubsystem;
+    public HoodCommand(HoodSubsystem hood, double targetPosition) {
+        this.hood = hood;
         this.targetPosition = targetPosition;
-        addRequirements(hoodSubsystem);
+        addRequirements(hood);
     }
 
     @Override
     public void initialize() {
         System.out.println(">>> HoodCommand STARTED, target: " + targetPosition);
-        System.out.println(">>> Current position at start: " + hoodSubsystem.getPosition());
-        hoodSubsystem.setPosition(targetPosition);
+        hood.setPosition(targetPosition);
     }
 
     @Override
@@ -26,14 +24,12 @@ public class HoodCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        boolean done = hoodSubsystem.atTarget(targetPosition);
-        System.out.println(">>> isFinished check: " + done + " | pos: " + hoodSubsystem.getPosition());
-        return done;
+        return hood.atTarget(targetPosition);
     }
 
     @Override
     public void end(boolean interrupted) {
         System.out.println(">>> HoodCommand ENDED, interrupted: " + interrupted);
-        hoodSubsystem.stop();
+        hood.snapshotPosition(); // save where we stopped so holdPosition() keeps it there
     }
 }

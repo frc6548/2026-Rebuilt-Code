@@ -1,8 +1,11 @@
 {
-  "robotWidth": 0.6985,
-  "robotLength": 0.699,
+  "robotWidth": 0.89,
+  "robotLength": 0.89,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "Double Intake Auto",
+    "Player Station Auto"
+  ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Intake down and wait"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Right Half field Trench Start"

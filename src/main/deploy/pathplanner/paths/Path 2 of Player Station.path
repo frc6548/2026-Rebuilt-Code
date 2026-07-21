@@ -3,32 +3,37 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.497,
-        "y": 4.010920353982301
+        "x": 3.316384615384617,
+        "y": 4.000115384615385
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.743775911134335,
-        "y": 3.970899738247172
+        "x": 2.3628717948717957,
+        "y": 4.05825641025641
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "End of Path 1 of Player Station"
     },
     {
       "anchor": {
-        "x": 3.497,
-        "y": 4.010920353982301
+        "x": 1.6768076923076936,
+        "y": 1.2093461538461543
       },
       "prevControl": {
-        "x": 3.219886917318809,
-        "y": 4.056450082835855
+        "x": 1.0430705128205138,
+        "y": 1.645403846153846
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "End of Path 2 Player Station"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": -90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": -90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Player Station Auto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 89.05304855322657
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

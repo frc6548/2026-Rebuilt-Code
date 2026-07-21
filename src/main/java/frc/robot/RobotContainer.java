@@ -4,12 +4,11 @@ import static edu.wpi.first.units.Units.*;
 
 import frc.robot.commands.AlignToAprilTagCommand;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.ShiftTracker;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.commands.HoodCommand;
-import frc.robot.subsystems.SpindexerSubsystem;
+import frc.robot.subsystems.RollerFlowSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.subsystems.IntakeLiftSubsystem;
@@ -22,7 +21,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,122 +35,164 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
 
-  private final SpindexerSubsystem Spindexerkraken = new SpindexerSubsystem();
-  private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-  private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+    // Subsystems
+    private final ShooterSubsystem        shooter    = new ShooterSubsystem();
+    private final RollerFlowSubsystem     rollerFlow = new RollerFlowSubsystem();
+    private final IntakeSubsystem         intake     = new IntakeSubsystem();
+    private final IntakeLiftSubsystem     intakeLift = new IntakeLiftSubsystem();
+    private final HoodSubsystem           hood       = new HoodSubsystem(9);
+    private final LimelightSubsystem      limelight  = new LimelightSubsystem();
+    public  final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-  private final ShooterSubsystem Shooterkraken = new ShooterSubsystem();
-  private final HoodSubsystem HoodSubsystem = new HoodSubsystem(9);
-  private final IntakeSubsystem Intakekraken = new IntakeSubsystem();
-  private final IntakeLiftSubsystem intakeLiftSubsystem = new IntakeLiftSubsystem();
-  private final LimelightSubsystem limelight = new LimelightSubsystem();
-  private final ShiftTracker shiftTracker = new ShiftTracker();
+    // Drive
+    private double MaxSpeed       = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
-  private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-          .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1)
-          .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+        .withDeadband(MaxSpeed * 0.1)
+        .withRotationalDeadband(MaxAngularRate * 0.1)
+        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-  private final Telemetry logger = new Telemetry(MaxSpeed);
-  private final CommandXboxController joystick = new CommandXboxController(0);
+    private final Telemetry             logger   = new Telemetry(MaxSpeed);
+    private final CommandXboxController joystick = new CommandXboxController(0);
 
-  public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private SendableChooser<Command> autoChooser;
 
-  private SendableChooser<Command> autoChooser;
+    public RobotContainer() {
+        registerNamedCommands();
+        autoChooser = AutoBuilder.buildAutoChooser();
+        SmartDashboard.putData("Auto Mode", autoChooser);
+        configureBindings();
+    }
 
-  public RobotContainer() {
-    // Register named commands BEFORE building auto chooser
-NamedCommands.registerCommand("Intake down and wait",
-    new SequentialCommandGroup(
-        new InstantCommand(() -> {
-            System.out.println(">>> Forcing intake to POSITION_DOWN: " + IntakeLiftSubsystem.POSITION_DOWN);
-            intakeLiftSubsystem.setPosition(IntakeLiftSubsystem.POSITION_DOWN);
-        }, intakeLiftSubsystem),
-        new WaitCommand(1.0)
- ));
-    NamedCommands.registerCommand("Intake deactive",
-        new InstantCommand(() -> Intakekraken.stop(), Intakekraken));
-    NamedCommands.registerCommand("Intake up and deactive",
-        new ParallelCommandGroup(
-            new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.POSITION_UP),
-            new InstantCommand(() -> Intakekraken.stop(), Intakekraken)
-        ));
-   NamedCommands.registerCommand("Intake dump",
-    new ParallelDeadlineGroup(
-        new WaitCommand(2.0),
-        new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.Dump),
-        new IntakeCommand(Intakekraken)
-    ));
-    System.out.println(">>> Registered: Intake dump");
+    // -------------------------------------------------------------------------
+    // Named Commands (PathPlanner auto)
+    // -------------------------------------------------------------------------
+    private void registerNamedCommands() {
 
-    NamedCommands.registerCommand("Shooter Sequence",
-        new ShootCommand(Shooterkraken, Spindexerkraken));
-    NamedCommands.registerCommand("Align To Hub",
-        new AlignToAprilTagCommand(limelight, HoodSubsystem, true));
-        System.out.println(">>> Registered: Align To Hub");
-    NamedCommands.registerCommand("Wait 1 Second",
-        new WaitCommand(1.0));
-        NamedCommands.registerCommand("Intake active",
-    new IntakeCommand(Intakekraken));
+        NamedCommands.registerCommand("Intake down and wait",
+            new SequentialCommandGroup(
+                new InstantCommand(() -> intakeLift.setPosition(IntakeLiftSubsystem.POSITION_DOWN), intakeLift),
+                new WaitCommand(0)
+            ));
 
-    // Build auto chooser AFTER AutoBuilder is configured by drivetrain
-    autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Mode", autoChooser);
+        NamedCommands.registerCommand("IntakeOn",
+            new InstantCommand(() -> intake.spin(), intake));
 
-    configureBindings();
-  }
+        NamedCommands.registerCommand("IntakeOff",
+            new InstantCommand(() -> intake.stop(), intake));
 
-  private void configureBindings() {
-    drivetrain.setDefaultCommand(
-        drivetrain.applyRequest(() ->
-            drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
-                 .withVelocityY(-joystick.getLeftX() * MaxSpeed)
-                 .withRotationalRate(-joystick.getRightX() * MaxAngularRate)
-        )
-    );
+        NamedCommands.registerCommand("Intake up and deactive",
+            new ParallelCommandGroup(
+                new IntakeLiftCommand(intakeLift, IntakeLiftSubsystem.POSITION_UP),
+                new InstantCommand(() -> intake.stop(), intake)
+            ));
 
-    intakeLiftSubsystem.setDefaultCommand(
-        Commands.run(() -> intakeLiftSubsystem.stop(), intakeLiftSubsystem)
-    );
+        NamedCommands.registerCommand("Intake dump",
+            new SequentialCommandGroup(
+                new ParallelDeadlineGroup(
+                    new WaitCommand(2.0),
+                    new IntakeLiftCommand(intakeLift, IntakeLiftSubsystem.DUMP),
+                    new InstantCommand(() -> intake.spin(), intake)
+                ),
+                new InstantCommand(() -> intake.stop(), intake)
+            ));
 
-    HoodSubsystem.setDefaultCommand(
-        Commands.run(() -> HoodSubsystem.stop(), HoodSubsystem)
-    );
+        NamedCommands.registerCommand("Shooter Sequence",
+            new ShootCommand(shooter, rollerFlow));
 
-    joystick.rightTrigger().onTrue(new ShootCommand(Shooterkraken, Spindexerkraken));
-    joystick.y().onTrue(new HoodCommand(HoodSubsystem, frc.robot.subsystems.HoodSubsystem.Hardstop));
-    joystick.a().onTrue(new HoodCommand(HoodSubsystem, frc.robot.subsystems.HoodSubsystem.TestPosition));
-    joystick.x().onTrue(new IntakeCommand(Intakekraken));
-    joystick.povUp().onTrue(new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.POSITION_UP));
-    joystick.povDown().onTrue(new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.POSITION_DOWN));
-   joystick.rightBumper().onTrue(new SequentialCommandGroup(
-    new ParallelDeadlineGroup(
-        new WaitCommand(2.0),
-        new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.Dump),
-        new IntakeCommand(Intakekraken)
-    ),
-    new ParallelCommandGroup(
-        new IntakeLiftCommand(intakeLiftSubsystem, IntakeLiftSubsystem.POSITION_DOWN),
-        new InstantCommand(() -> Intakekraken.stop(), Intakekraken)
-    )
-));
-    joystick.povRight().onTrue(Commands.runOnce(() -> HoodSubsystem.NegativeincrementPosition(), HoodSubsystem));
-    joystick.povLeft().onTrue(Commands.runOnce(() -> HoodSubsystem.PosotiveincrementPosition(), HoodSubsystem));
+        NamedCommands.registerCommand("Shooter Sequence with End",
+            new ShootCommand(shooter, rollerFlow).withTimeout(7.0));
 
-    // B button — toggle hood auto-adjust
-    joystick.b().onTrue(Commands.runOnce(() -> limelight.toggleAutoAlign()));
-    new Trigger(() -> limelight.isAutoAlignEnabled())
-        .whileTrue(new AlignToAprilTagCommand(limelight, HoodSubsystem));
+        NamedCommands.registerCommand("Align To Hub",
+            new AlignToAprilTagCommand(limelight, hood, true).withTimeout(2.0));
 
-    joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-    drivetrain.registerTelemetry(logger::telemeterize);
-  }
+        NamedCommands.registerCommand("Wait 1 Second",
+            new WaitCommand(1.0));
+    }
 
-  public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
+    // -------------------------------------------------------------------------
+    // Bindings
+    // -------------------------------------------------------------------------
+    private void configureBindings() {
 
-  public void SetDriveTrainSpeed(double speed) {
-    MaxSpeed = speed;
-    drive.withDeadband(MaxSpeed * 0.1);
-  }
+        // Default commands
+        drivetrain.setDefaultCommand(
+            drivetrain.applyRequest(() ->
+                drive.withVelocityX(-joystick.getLeftY() * MaxSpeed)
+                     .withVelocityY(-joystick.getLeftX() * MaxSpeed)
+                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate)
+            )
+        );
+
+        // Hold lift position when no command is running
+        intakeLift.setDefaultCommand(
+            Commands.run(() -> intakeLift.holdPosition(), intakeLift)
+        );
+
+        // Actively hold hood position when no command is running
+        hood.setDefaultCommand(
+            Commands.run(() -> hood.holdPosition(), hood)
+        );
+
+        // Shoot sequence
+        joystick.rightTrigger().onTrue(new ShootCommand(shooter, rollerFlow));
+
+        // Hood UP (Y) and DOWN (A)
+        joystick.y().onTrue(new HoodCommand(hood, HoodSubsystem.MAX));
+        joystick.a().onTrue(new HoodCommand(hood, HoodSubsystem.HARDSTOP));
+
+        // Intake toggle on X — press once to spin, press again to stop
+        joystick.x().onTrue(new InstantCommand(() -> {
+            if (intake.isRunning()) intake.stop();
+            else intake.spin();
+        }, intake));
+
+        // Intake lift positions
+        joystick.povUp().onTrue(new IntakeLiftCommand(intakeLift, IntakeLiftSubsystem.POSITION_UP));
+        joystick.povDown().onTrue(new IntakeLiftCommand(intakeLift, IntakeLiftSubsystem.POSITION_DOWN));
+
+        // Dump sequence
+        joystick.rightBumper().onTrue(
+            Commands.sequence(
+                // Move to dump and hold there for 2 seconds while intake spins
+                Commands.deadline(
+                    Commands.waitSeconds(2.0),
+                    Commands.run(() -> intakeLift.setPosition(IntakeLiftSubsystem.DUMP), intakeLift),
+                    Commands.runOnce(() -> intake.spin(), intake)
+                ),
+                // Stop intake when done
+                Commands.runOnce(() -> intake.stop(), intake)
+            )
+        );
+
+        // Slow drivetrain to 50% when intake is running in teleop only
+        double fullSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+        new Trigger(() -> intake.isRunning() && !edu.wpi.first.wpilibj.DriverStation.isAutonomous())
+            .onTrue(Commands.runOnce(() -> setDriveTrainSpeed(fullSpeed * 0.5)))
+            .onFalse(Commands.runOnce(() -> setDriveTrainSpeed(fullSpeed)));
+
+        // Hood increment — hold POV Left to go down, POV Right to go up by 0.1 per loop
+        joystick.povLeft().whileTrue(Commands.run(() -> hood.incrementPosition(-0.1), hood));
+        joystick.povLeft().onFalse(Commands.runOnce(() -> hood.snapshotPosition(), hood));
+        joystick.povRight().whileTrue(Commands.run(() -> hood.incrementPosition(0.1), hood));
+        joystick.povRight().onFalse(Commands.runOnce(() -> hood.snapshotPosition(), hood));
+        joystick.b().onTrue(Commands.runOnce(() -> limelight.toggleAutoAlign()));
+        new Trigger(() -> limelight.isAutoAlignEnabled())
+            .whileTrue(new AlignToAprilTagCommand(limelight, hood));
+
+        // Reset field-centric heading
+        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        drivetrain.registerTelemetry(logger::telemeterize);
+    }
+
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
+    }
+
+    public void setDriveTrainSpeed(double speed) {
+        MaxSpeed = speed;
+        drive.withDeadband(MaxSpeed * 0.1);
+    }
 }

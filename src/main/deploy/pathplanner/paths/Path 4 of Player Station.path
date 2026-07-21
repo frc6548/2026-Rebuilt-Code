@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.497,
-        "y": 4.010920353982301
+        "x": 0.47354572271386397,
+        "y": 0.5381002949852507
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.743775911134335,
-        "y": 3.970899738247172
+        "x": 2.9778289085545726,
+        "y": 0.6130147492625371
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "End of Path 3 Player Station"
     },
     {
       "anchor": {
-        "x": 3.497,
-        "y": 4.010920353982301
+        "x": 3.316384615384617,
+        "y": 4.000115384615385
       },
       "prevControl": {
-        "x": 3.219886917318809,
-        "y": 4.056450082835855
+        "x": 1.0782123893805307,
+        "y": 3.957410029498526
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "End of Path 1 of Player Station"
     }
   ],
   "rotationTargets": [],
@@ -45,10 +45,10 @@
     "rotation": 90.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Player Station Auto",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 89.05304855322657
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

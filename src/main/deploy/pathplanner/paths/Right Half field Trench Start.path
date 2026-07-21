@@ -3,73 +3,73 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.165758112094395,
-        "y": 0.896619469026549
+        "x": 4.149705014749262,
+        "y": 0.7146843657817101
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.1657581120943945,
-        "y": 0.896619469026549
+        "x": 5.149705014749261,
+        "y": 0.7146843657817101
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.756300884955753,
-        "y": 0.896619469026549
+        "x": 8.217673076923077,
+        "y": 1.0639935897435897
       },
       "prevControl": {
-        "x": 7.702790560471977,
-        "y": 0.24379351032448426
+        "x": 8.164162752439301,
+        "y": 0.411167631041525
       },
       "nextControl": {
-        "x": 7.793458054837955,
-        "y": 1.3499369415894111
+        "x": 8.25483024680528,
+        "y": 1.5173110623064519
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.756300884955753,
-        "y": 2.892554572271387
+        "x": 8.217673076923077,
+        "y": 3.389634615384616
       },
       "prevControl": {
-        "x": 8.006221211804856,
-        "y": 2.8862434529065104
+        "x": 8.130592104180577,
+        "y": 3.6239781755398273
       },
       "nextControl": {
-        "x": 6.696796460176992,
-        "y": 2.9193097345132744
+        "x": 9.328166666666668,
+        "y": 0.40118589743589705
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.679457227138644,
-        "y": 2.715970501474926
+        "x": 4.502873156342183,
+        "y": 0.7146843657817101
       },
       "prevControl": {
-        "x": 5.378268060969152,
-        "y": 2.7008882532627565
+        "x": 5.19852009329582,
+        "y": 0.7827974687579088
       },
       "nextControl": {
-        "x": 3.935663716814159,
-        "y": 2.732023598820059
+        "x": 1.169179941002949,
+        "y": 0.38827138643067877
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.560448377581121,
-        "y": 3.9253038348082603
+        "x": 2.6193097345132736,
+        "y": 3.2136165191740407
       },
       "prevControl": {
-        "x": 2.9243185840707957,
-        "y": 3.630997050147492
+        "x": 2.640713864306785,
+        "y": 2.6892153392330385
       },
       "nextControl": null,
       "isLocked": false,
@@ -77,6 +77,10 @@
     }
   ],
   "rotationTargets": [
+    {
+      "waypointRelativePos": 0.6743159752868483,
+      "rotationDegrees": 180.0
+    },
     {
       "waypointRelativePos": 1.0,
       "rotationDegrees": 90.0
@@ -88,59 +92,30 @@
     {
       "waypointRelativePos": 3.0,
       "rotationDegrees": 0.0
-    },
-    {
-      "waypointRelativePos": 4.0,
-      "rotationDegrees": 180.0
     }
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "Intake down and active",
+      "name": "IntakeOn",
       "waypointRelativePos": 0.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "Intake down and active"
+          "name": "IntakeOn"
         }
       }
     },
     {
-      "name": "Intake deactive",
+      "name": "IntakeOff",
       "waypointRelativePos": 2.0,
       "endWaypointRelativePos": null,
-      "command": null
-    },
-    {
-      "name": "Shooter Sequence",
-      "waypointRelativePos": 4.0,
-      "endWaypointRelativePos": null,
       "command": {
-        "type": "sequential",
+        "type": "named",
         "data": {
-          "commands": [
-            {
-              "type": "named",
-              "data": {
-                "name": "Align To Hub"
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "Shooter Sequence"
-              }
-            },
-            {
-              "type": "named",
-              "data": {
-                "name": "Intake dump"
-              }
-            }
-          ]
+          "name": "IntakeOff"
         }
       }
     }
@@ -155,7 +130,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 88.85423716182494
+    "rotation": -158.74949449286677
   },
   "reversed": false,
   "folder": null,
