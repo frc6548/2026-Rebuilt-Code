@@ -9,12 +9,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * Tracks the current Hub shift state for the 2026 FRC game REBUILT.
  *
  * Shift timing (match time counts down from 140s in teleop):
- *   > 130s : Transition shift — both hubs active
+ *   > 130s : Transition shift - both hubs active
  *   > 105s : Shift 1 (25s)
  *   > 80s  : Shift 2 (25s)
  *   > 55s  : Shift 3 (25s)
  *   > 30s  : Shift 4 (25s)
- *   <= 30s : End game — both hubs active
+ *   <= 30s : End game - both hubs active
  *
  * Game data: 'R' = red goes inactive first (active in shifts 2 & 4)
  *            'B' = blue goes inactive first (active in shifts 2 & 4)

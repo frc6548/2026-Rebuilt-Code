@@ -33,7 +33,7 @@ public class HoodSubsystem extends SubsystemBase {
         config.Slot0.kV = 0.12;
         config.Slot0.kG = 0.2;
 
-        // MotionMagic — smooth over short 3.17 rotation range
+        // MotionMagic - smooth over short 3.17 rotation range
         config.MotionMagic.MotionMagicCruiseVelocity = 10;
         config.MotionMagic.MotionMagicAcceleration   = 20;
         config.MotionMagic.MotionMagicJerk           = 100;
@@ -41,7 +41,7 @@ public class HoodSubsystem extends SubsystemBase {
         config.MotorOutput.Inverted    = InvertedValue.CounterClockwise_Positive;
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
 
-        // Software limits — just outside real range
+        // Software limits - just outside real range
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable    = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 3.3;   // just past MAX
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable    = true;
@@ -51,7 +51,7 @@ public class HoodSubsystem extends SubsystemBase {
         config.CurrentLimits.StatorCurrentLimitEnable = true;
 
         hoodMotor.getConfigurator().apply(config);
-        hoodMotor.setPosition(0.0); // Zero on boot — make sure hood is at hardstop when powering on
+        hoodMotor.setPosition(0.0); // Zero on boot - make sure hood is at hardstop when powering on
 
         // Single readback to verify
         TalonFXConfiguration readback = new TalonFXConfiguration();
@@ -70,6 +70,10 @@ public class HoodSubsystem extends SubsystemBase {
 
     public void snapshotPosition() {
         heldPosition = getPosition();
+    }
+
+    public void resetToDefault() {
+        heldPosition = HARDSTOP;
     }
 
     public void holdPosition() {

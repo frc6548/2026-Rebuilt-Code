@@ -12,7 +12,7 @@ public class IntakeLiftSubsystem extends SubsystemBase {
     private final TalonFX intakeLift;
     private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0).withSlot(0);
 
-    // Positions — UP is 0, DOWN is 48.09 (125:1 total gear ratio — three 5:1 stages)
+    // Positions - UP is 0, DOWN is 48.09 (125:1 total gear ratio - three 5:1 stages)
     public static final double POSITION_UP   =  0.0;
     public static final double POSITION_DOWN =  48.09521484375;
     public static final double DUMP          =  17.0;  // ~35% down, tune as needed
@@ -31,18 +31,18 @@ public class IntakeLiftSubsystem extends SubsystemBase {
         config.Slot0.kD = 0.3;
         config.Slot0.kS = 0.5;
         config.Slot0.kV = 0.12;
-        config.Slot0.kG = 0.0;   // Removed — was causing initial jerk fighting gravity going DOWN
+        config.Slot0.kG = 0.0;   // Removed - was causing initial jerk fighting gravity going DOWN
 
-        // MotionMagic profile — smoother motion over 48 rotations
+        // MotionMagic profile - smoother motion over 48 rotations
         config.MotionMagic.MotionMagicCruiseVelocity = 35;  // slightly lower cruise for smoother run
         config.MotionMagic.MotionMagicAcceleration   = 30;  // slower ramp up/down = no jerky pauses
         config.MotionMagic.MotionMagicJerk           = 100; // low jerk = very smooth transitions
 
-        // Brake mode — holds position when not commanded
+        // Brake mode - holds position when not commanded
         config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         config.MotorOutput.Inverted    = InvertedValue.CounterClockwise_Positive;
 
-        // Software limits — just outside real range
+        // Software limits - just outside real range
         config.SoftwareLimitSwitch.ForwardSoftLimitEnable    = true;
         config.SoftwareLimitSwitch.ForwardSoftLimitThreshold = 50.0;  // buffer past DOWN
         config.SoftwareLimitSwitch.ReverseSoftLimitEnable    = true;
@@ -55,7 +55,7 @@ public class IntakeLiftSubsystem extends SubsystemBase {
         config.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         intakeLift.getConfigurator().apply(config);
-        intakeLift.setPosition(0.0); // Zero on boot — make sure intake is UP when powering on
+        intakeLift.setPosition(0.0); // Zero on boot - make sure intake is UP when powering on
     }
 
     public void setPosition(double rotations) {
@@ -71,12 +71,16 @@ public class IntakeLiftSubsystem extends SubsystemBase {
         heldPosition = getPosition();
     }
 
+    public void resetToDefault() {
+        heldPosition = POSITION_UP;
+    }
+
     /** Actively holds the last snapshotted position using MotionMagic. */
     public void holdPosition() {
         intakeLift.setControl(positionRequest.withPosition(heldPosition));
     }
 
-    /** Full stop — use only when you want to release hold (e.g. disabled). */
+    /** Full stop - use only when you want to release hold (e.g. disabled). */
     public void stop() {
         intakeLift.stopMotor();
     }

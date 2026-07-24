@@ -48,7 +48,7 @@ public class RobotContainer {
     private double MaxSpeed       = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    private SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(MaxSpeed * 0.1)
         .withRotationalDeadband(MaxAngularRate * 0.1)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -142,7 +142,7 @@ public class RobotContainer {
         joystick.y().onTrue(new HoodCommand(hood, HoodSubsystem.MAX));
         joystick.a().onTrue(new HoodCommand(hood, HoodSubsystem.HARDSTOP));
 
-        // Intake toggle on X — press once to spin, press again to stop
+        // Intake toggle on X - press once to spin, press again to stop
         joystick.x().onTrue(new InstantCommand(() -> {
             if (intake.isRunning()) intake.stop();
             else intake.spin();
@@ -172,7 +172,7 @@ public class RobotContainer {
             .onTrue(Commands.runOnce(() -> setDriveTrainSpeed(fullSpeed * 0.5)))
             .onFalse(Commands.runOnce(() -> setDriveTrainSpeed(fullSpeed)));
 
-        // Hood increment — hold POV Left to go down, POV Right to go up by 0.1 per loop
+        // Hood increment - hold POV Left to go down, POV Right to go up by 0.1 per loop
         joystick.povLeft().whileTrue(Commands.run(() -> hood.incrementPosition(-0.1), hood));
         joystick.povLeft().onFalse(Commands.runOnce(() -> hood.snapshotPosition(), hood));
         joystick.povRight().whileTrue(Commands.run(() -> hood.incrementPosition(0.1), hood));
@@ -193,6 +193,16 @@ public class RobotContainer {
 
     public void setDriveTrainSpeed(double speed) {
         MaxSpeed = speed;
-        drive.withDeadband(MaxSpeed * 0.1);
+        drive = drive.withDeadband(MaxSpeed * 0.1);
+    }
+
+    public void resetToDefaults() {
+        setDriveTrainSpeed(TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
+        intake.stop();
+        rollerFlow.stop();
+        shooter.stop();
+        hood.resetToDefault();
+        intakeLift.resetToDefault();
+        limelight.setAutoAlign(false);
     }
 }

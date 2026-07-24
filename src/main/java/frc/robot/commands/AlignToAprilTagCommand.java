@@ -26,12 +26,12 @@ public class AlignToAprilTagCommand extends Command {
     private int    stableLoops = 0;
     private double hoodTarget  = 0.0;
 
-    /** Teleop constructor — runs until B is toggled off. */
+    /** Teleop constructor - runs until B is toggled off. */
     public AlignToAprilTagCommand(LimelightSubsystem limelight, HoodSubsystem hood) {
         this(limelight, hood, false);
     }
 
-    /** Auto constructor — finishes when hood is stable on target. */
+    /** Auto constructor - finishes when hood is stable on target. */
     public AlignToAprilTagCommand(LimelightSubsystem limelight, HoodSubsystem hood, boolean isAuto) {
         this.limelight = limelight;
         this.hood      = hood;
@@ -51,7 +51,7 @@ public class AlignToAprilTagCommand extends Command {
     @Override
     public void execute() {
         if (!limelight.hasValidTarget()) {
-            // No valid tag — use fallback position in auto, hold current in teleop
+            // No valid tag - use fallback position in auto, hold current in teleop
             if (isAuto) hood.setPosition(FALLBACK_HOOD);
             else hood.holdPosition();
             SmartDashboard.putNumber("Hood Auto Distance (in)", -1);
