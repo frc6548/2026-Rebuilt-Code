@@ -15,6 +15,8 @@ public class RollerFlowSubsystem extends SubsystemBase {
 
     private final VoltageOut voltageOut = new VoltageOut(0);
 
+    private boolean running = false;
+
     // 11.5V compensation base
     private static final double COMP_VOLTAGE   = 11.5;
     private static final double ROLLER_SPEED   = 0.45;
@@ -56,15 +58,21 @@ public class RollerFlowSubsystem extends SubsystemBase {
     }
 
     public void spin() {
+        running = true;
         shooterRollers.setControl(voltageOut.withOutput(TARGET_VOLTAGE));
         singleRoller.setControl(voltageOut.withOutput(TARGET_VOLTAGE));
         hopperRollers.setControl(voltageOut.withOutput(HOPPER_TARGET_VOLTAGE));
     }
 
     public void stop() {
+        running = false;
         shooterRollers.setControl(voltageOut.withOutput(0));
         singleRoller.setControl(voltageOut.withOutput(0));
         hopperRollers.setControl(voltageOut.withOutput(0));
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     @Override

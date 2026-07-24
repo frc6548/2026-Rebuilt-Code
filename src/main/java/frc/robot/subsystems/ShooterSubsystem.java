@@ -12,6 +12,8 @@ public class ShooterSubsystem extends SubsystemBase {
     private final TalonFX shooter2 = new TalonFX(14);
     private final VoltageOut voltageOut = new VoltageOut(0);
 
+    private boolean running = false;
+
     public ShooterSubsystem() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
@@ -38,13 +40,19 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void spin() {
+        running = true;
         shooter1.setControl(voltageOut.withOutput(-11.5 * 0.45));
         shooter2.setControl(voltageOut.withOutput( 11.5 * 0.45));
     }
 
     public void stop() {
+        running = false;
         shooter1.setControl(voltageOut.withOutput(0));
         shooter2.setControl(voltageOut.withOutput(0));
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     public double getVelocityRPS() {
