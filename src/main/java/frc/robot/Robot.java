@@ -18,7 +18,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-        // Runs the scheduler — this is required for commands to work
+        // Runs the scheduler - this is required for commands to work
         CommandScheduler.getInstance().run();
     }
 

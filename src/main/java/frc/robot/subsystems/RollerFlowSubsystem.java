@@ -18,7 +18,7 @@ public class RollerFlowSubsystem extends SubsystemBase {
     // 11.5V compensation base
     private static final double COMP_VOLTAGE   = 11.5;
     private static final double ROLLER_SPEED   = 0.45;
-    private static final double HOPPER_SPEED   = 0.15; // slow — tune if needed
+    private static final double HOPPER_SPEED   = 0.15; // slow - tune if needed
     private static final double TARGET_VOLTAGE        = COMP_VOLTAGE * ROLLER_SPEED; // 5.175V
     private static final double HOPPER_TARGET_VOLTAGE = COMP_VOLTAGE * HOPPER_SPEED; // 1.725V
 
@@ -39,7 +39,7 @@ public class RollerFlowSubsystem extends SubsystemBase {
         singleRollerConfig.CurrentLimits.SupplyCurrentLimit       = 30;
         singleRollerConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
-        // Hopper config — slow speed, clockwise positive
+        // Hopper config - slow speed, clockwise positive
         TalonFXConfiguration hopperConfig = new TalonFXConfiguration();
         hopperConfig.MotorOutput.NeutralMode    = NeutralModeValue.Coast;
         hopperConfig.MotorOutput.Inverted       = InvertedValue.Clockwise_Positive;

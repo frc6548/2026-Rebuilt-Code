@@ -15,14 +15,14 @@ public class ShooterSubsystem extends SubsystemBase {
     public ShooterSubsystem() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
-        // Voltage compensation — maintains consistent output despite battery sag
+        // Voltage compensation - maintains consistent output despite battery sag
         config.Voltage.PeakForwardVoltage  = 11.5;
         config.Voltage.PeakReverseVoltage  = -11.5;
 
-        // Ramp up over ~2 seconds — matches voltage compensation mode
+        // Ramp up over ~2 seconds - matches voltage compensation mode
         config.OpenLoopRamps.VoltageOpenLoopRampPeriod = 2.0;
 
-        // Brake mode — stops cleanly when commanded off
+        // Brake mode - stops cleanly when commanded off
         config.MotorOutput.NeutralMode = NeutralModeValue.Coast;
 
         // Current limits to protect Krakens during spin-up
