@@ -72,6 +72,10 @@ public class HoodSubsystem extends SubsystemBase {
         heldPosition = getPosition();
     }
 
+    public void resetToDefault() {
+        heldPosition = HARDSTOP;
+    }
+
     public void holdPosition() {
         hoodMotor.setControl(positionRequest.withPosition(heldPosition));
     }

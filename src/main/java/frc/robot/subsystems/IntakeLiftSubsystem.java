@@ -71,6 +71,10 @@ public class IntakeLiftSubsystem extends SubsystemBase {
         heldPosition = getPosition();
     }
 
+    public void resetToDefault() {
+        heldPosition = POSITION_UP;
+    }
+
     /** Actively holds the last snapshotted position using MotionMagic. */
     public void holdPosition() {
         intakeLift.setControl(positionRequest.withPosition(heldPosition));

@@ -48,7 +48,7 @@ public class RobotContainer {
     private double MaxSpeed       = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    private SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(MaxSpeed * 0.1)
         .withRotationalDeadband(MaxAngularRate * 0.1)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -193,6 +193,16 @@ public class RobotContainer {
 
     public void setDriveTrainSpeed(double speed) {
         MaxSpeed = speed;
-        drive.withDeadband(MaxSpeed * 0.1);
+        drive = drive.withDeadband(MaxSpeed * 0.1);
+    }
+
+    public void resetToDefaults() {
+        setDriveTrainSpeed(TunerConstants.kSpeedAt12Volts.in(MetersPerSecond));
+        intake.stop();
+        rollerFlow.stop();
+        shooter.stop();
+        hood.resetToDefault();
+        intakeLift.resetToDefault();
+        limelight.setAutoAlign(false);
     }
 }
