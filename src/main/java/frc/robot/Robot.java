@@ -42,7 +42,7 @@ public class Robot extends TimedRobot {
         }
     }
 
-    @Override b
+    @Override
     public void autonomousPeriodic() {}
 
     @Override
