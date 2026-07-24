@@ -10,7 +10,6 @@ public class ShootCommand extends SequentialCommandGroup {
 
     public ShootCommand(ShooterSubsystem shooter, RollerFlowSubsystem rollerFlow) {
         addCommands(
-            // Step 1: Start shooter, wait 1 second for spin up
             new ParallelCommandGroup(
                 new ShooterCommand(shooter),
                 new WaitCommand(2.5)

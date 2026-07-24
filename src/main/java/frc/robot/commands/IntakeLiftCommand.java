@@ -25,10 +25,9 @@ public class IntakeLiftCommand extends Command {
 
     @Override
     public boolean isFinished() {
-     boolean done = intakeLiftSubsystem.atTarget(targetPosition);
-    System.out.println(">>> done: " + done + " | pos: " + intakeLiftSubsystem.getPosition() + " | target: " + targetPosition);
-    return done;
-
+        boolean done = intakeLiftSubsystem.atTarget(targetPosition);
+        // System.out.println(">>> done: " + done + " | pos: " + intakeLiftSubsystem.getPosition() + " | target: " + targetPosition);
+        return done;
     }
 
     @Override

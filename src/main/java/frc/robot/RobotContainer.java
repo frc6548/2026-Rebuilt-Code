@@ -10,7 +10,6 @@ import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.commands.HoodCommand;
 import frc.robot.subsystems.RollerFlowSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.commands.IntakeCommand;
 import frc.robot.subsystems.IntakeLiftSubsystem;
 import frc.robot.commands.IntakeLiftCommand;
 import frc.robot.commands.ShootCommand;
@@ -21,6 +20,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -60,7 +60,12 @@ public class RobotContainer {
 
     public RobotContainer() {
         registerNamedCommands();
-        autoChooser = AutoBuilder.buildAutoChooser();
+        try {
+            autoChooser = AutoBuilder.buildAutoChooser();
+        } catch (Exception ex) {
+            DriverStation.reportError("Failed to build auto chooser - AutoBuilder not configured", ex.getStackTrace());
+            autoChooser = new SendableChooser<>();
+        }
         SmartDashboard.putData("Auto Mode", autoChooser);
         configureBindings();
     }
