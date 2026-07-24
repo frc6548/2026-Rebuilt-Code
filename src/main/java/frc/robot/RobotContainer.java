@@ -59,6 +59,7 @@ public class RobotContainer {
     private SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+        limelight.setDrivetrain(drivetrain);
         registerNamedCommands();
         try {
             autoChooser = AutoBuilder.buildAutoChooser();

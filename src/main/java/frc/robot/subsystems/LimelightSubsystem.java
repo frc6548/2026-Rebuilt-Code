@@ -21,9 +21,19 @@ public class LimelightSubsystem extends SubsystemBase {
     // Teleop auto-align toggle
     private boolean autoAlignEnabled = false;
 
+    // Reject vision poses built from tags farther than this - distant tags are noisy
+    private static final double MAX_TRUSTED_TAG_DISTANCE_METERS = 6.0;
+
+    private CommandSwerveDrivetrain drivetrain;
+
     public LimelightSubsystem() {
         table = NetworkTableInstance.getDefault().getTable("limelight");
         setPipeline(0);
+    }
+
+    /** Called once from RobotContainer after the drivetrain is constructed. */
+    public void setDrivetrain(CommandSwerveDrivetrain drivetrain) {
+        this.drivetrain = drivetrain;
     }
 
     // -------------------------------------------------------------------------
@@ -119,6 +129,31 @@ public class LimelightSubsystem extends SubsystemBase {
     public void turnOffLEDs() { setLEDMode(1); }
 
     // -------------------------------------------------------------------------
+    // Vision pose fusion - corrects drivetrain odometry drift using AprilTags
+    // -------------------------------------------------------------------------
+
+    private void updateVisionPose() {
+        if (drivetrain == null) return;
+
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isEmpty()) return;
+
+        LimelightHelpers.PoseEstimate estimate = alliance.get() == Alliance.Red
+            ? LimelightHelpers.getBotPoseEstimate_wpiRed("limelight")
+            : LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+
+        if (estimate == null || estimate.tagCount == 0) return;
+        if (estimate.avgTagDist > MAX_TRUSTED_TAG_DISTANCE_METERS) return;
+
+        drivetrain.addVisionMeasurement(estimate.pose, estimate.timestampSeconds);
+
+        SmartDashboard.putNumber("Vision Pose X",        estimate.pose.getTranslation().getX());
+        SmartDashboard.putNumber("Vision Pose Y",        estimate.pose.getTranslation().getY());
+        SmartDashboard.putNumber("Vision Tag Count",     estimate.tagCount);
+        SmartDashboard.putNumber("Vision Avg Tag Dist",  estimate.avgTagDist);
+    }
+
+    // -------------------------------------------------------------------------
     // Periodic
     // -------------------------------------------------------------------------
 
@@ -133,5 +168,7 @@ public class LimelightSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("Limelight Distance (in)",
             hasTarget() ? LimelightHelpers.getTargetPose3d_CameraSpace("limelight")
                 .getTranslation().getNorm() * 39.3701 : -1);
+
+        updateVisionPose();
     }
 }
