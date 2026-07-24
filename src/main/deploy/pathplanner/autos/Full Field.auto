@@ -23,13 +23,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "Intake deactive"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Align To Hub"
+                  "name": "IntakeOff"
                 }
               },
               {
