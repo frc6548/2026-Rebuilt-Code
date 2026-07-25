@@ -253,6 +253,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
+    /** Current field-relative heading, for feeding external sensors (e.g. Limelight MegaTag2). */
+    public Rotation2d getHeading() {
+        return getState().Pose.getRotation();
+    }
+
     @Override
     public void periodic() {
         /*

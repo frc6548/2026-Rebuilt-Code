@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -23,6 +25,22 @@ public class LimelightSubsystem extends SubsystemBase {
 
     // Reject vision poses built from tags farther than this - distant tags are noisy
     private static final double MAX_TRUSTED_TAG_DISTANCE_METERS = 6.0;
+
+    // Reject single-tag reads above this ambiguity (0-1, higher = more likely a flipped/wrong solve)
+    private static final double MAX_SINGLE_TAG_AMBIGUITY = 0.7;
+
+    // Base X/Y standard deviations (meters) at close range, before distance scaling
+    private static final double SINGLE_TAG_STD_DEV_METERS = 0.6;
+    private static final double MULTI_TAG_STD_DEV_METERS  = 0.3;
+    private static final double STD_DEV_DISTANCE_SCALE_METERS = 4.0;
+
+    // MegaTag2 (and single-tag MegaTag1) borrow our own gyro/odometry for rotation,
+    // so vision is only ever trusted to correct X/Y - rotation stays with the drivetrain
+    private static final double UNTRUSTED_ROTATION_STD_DEV = 9999999.0;
+
+    // Multi-tag (2+) MegaTag1 is a fully independent 6dof solve - rotation is unambiguous
+    // with 2+ tags, so it's trustworthy enough to correct a drifted/misconfigured gyro
+    private static final double MULTI_TAG_ROTATION_STD_DEV_DEGREES = 2.0;
 
     private CommandSwerveDrivetrain drivetrain;
 
@@ -129,7 +147,17 @@ public class LimelightSubsystem extends SubsystemBase {
     public void turnOffLEDs() { setLEDMode(1); }
 
     // -------------------------------------------------------------------------
-    // Vision pose fusion - corrects drivetrain odometry drift using AprilTags
+    // Vision pose fusion corrects drivetrain odometry drift using AprilTags
+    //
+    // Priority:
+    //   1. Multi-tag (2+) MegaTag1 for independent 6dof solve. Rotation
+    //      is perfecto with more than 1 tag, so this is the only goody trusted to
+    //      correct headings (like bad seedFieldCentric() press or gyro drift.
+    //   2. MegaTag2 - gyrolocked rot, XY only! Best available when only
+    //      one tag is visible, since single-tag rotation solves are ambiguosu
+    //      and get real stupid with megatag1
+    //   3. Single-tag MegaTag1 - last resort, X/Y only, if MegaTag2 has nothing
+    //   4. Nothing usable, screw it and use the drivetrain odometry as a hailmary
     // -------------------------------------------------------------------------
 
     private void updateVisionPose() {
@@ -137,20 +165,67 @@ public class LimelightSubsystem extends SubsystemBase {
 
         var alliance = DriverStation.getAlliance();
         if (alliance.isEmpty()) return;
+        boolean isRed = alliance.get() == Alliance.Red;
 
-        LimelightHelpers.PoseEstimate estimate = alliance.get() == Alliance.Red
+        LimelightHelpers.PoseEstimate multiTagEstimate = isRed
             ? LimelightHelpers.getBotPoseEstimate_wpiRed("limelight")
             : LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
 
-        if (estimate == null || estimate.tagCount == 0) return;
-        if (estimate.avgTagDist > MAX_TRUSTED_TAG_DISTANCE_METERS) return;
+        if (isTrustworthy(multiTagEstimate) && multiTagEstimate.tagCount >= 2) {
+            applyMeasurement(multiTagEstimate, true, "MegaTag1 Multi-Tag");
+            return;
+        }
 
-        drivetrain.addVisionMeasurement(estimate.pose, estimate.timestampSeconds);
+        double currentYawDegrees = drivetrain.getHeading().getDegrees();
+        LimelightHelpers.SetRobotOrientation("limelight", currentYawDegrees, 0, 0, 0, 0, 0);
 
-        SmartDashboard.putNumber("Vision Pose X",        estimate.pose.getTranslation().getX());
-        SmartDashboard.putNumber("Vision Pose Y",        estimate.pose.getTranslation().getY());
-        SmartDashboard.putNumber("Vision Tag Count",     estimate.tagCount);
-        SmartDashboard.putNumber("Vision Avg Tag Dist",  estimate.avgTagDist);
+        LimelightHelpers.PoseEstimate megaTag2Estimate = isRed
+            ? LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2("limelight")
+            : LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+
+        if (isTrustworthy(megaTag2Estimate)) {
+            applyMeasurement(megaTag2Estimate, false, "MegaTag2");
+            return;
+        }
+
+        if (isTrustworthy(multiTagEstimate)) {
+            applyMeasurement(multiTagEstimate, false, "MegaTag1 Single-Tag");
+            return;
+        }
+
+        // Nothing usable this loop - trust the drivetrain's own odometry, do nothing
+        SmartDashboard.putBoolean("Vision Correcting Pose", false);
+    }
+
+    private boolean isTrustworthy(LimelightHelpers.PoseEstimate estimate) {
+        if (estimate == null || estimate.tagCount == 0) return false;
+        if (estimate.avgTagDist > MAX_TRUSTED_TAG_DISTANCE_METERS) return false;
+        if (estimate.tagCount == 1 && estimate.rawFiducials.length > 0
+                && estimate.rawFiducials[0].ambiguity > MAX_SINGLE_TAG_AMBIGUITY) return false;
+        return true;
+    }
+
+    private void applyMeasurement(LimelightHelpers.PoseEstimate estimate, boolean trustRotation, String source) {
+        double baseStdDev = estimate.tagCount >= 2 ? MULTI_TAG_STD_DEV_METERS : SINGLE_TAG_STD_DEV_METERS;
+        double xyStdDev = baseStdDev * (1.0 + estimate.avgTagDist / STD_DEV_DISTANCE_SCALE_METERS);
+        double thetaStdDev = trustRotation
+            ? Units.degreesToRadians(MULTI_TAG_ROTATION_STD_DEV_DEGREES)
+            : UNTRUSTED_ROTATION_STD_DEV;
+
+        drivetrain.addVisionMeasurement(
+            estimate.pose,
+            estimate.timestampSeconds,
+            VecBuilder.fill(xyStdDev, xyStdDev, thetaStdDev)
+        );
+
+        SmartDashboard.putBoolean("Vision Correcting Pose",     true);
+        SmartDashboard.putBoolean("Vision Correcting Rotation", trustRotation);
+        SmartDashboard.putString("Vision Source",               source);
+        SmartDashboard.putNumber("Vision Pose X",               estimate.pose.getTranslation().getX());
+        SmartDashboard.putNumber("Vision Pose Y",               estimate.pose.getTranslation().getY());
+        SmartDashboard.putNumber("Vision Tag Count",            estimate.tagCount);
+        SmartDashboard.putNumber("Vision Avg Tag Dist",         estimate.avgTagDist);
+        SmartDashboard.putNumber("Vision XY Std Dev",           xyStdDev);
     }
 
     // -------------------------------------------------------------------------
