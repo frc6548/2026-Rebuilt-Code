@@ -208,8 +208,7 @@ public class RobotContainer {
         intake.stop();
         rollerFlow.stop();
         shooter.stop();
-        hood.resetToDefault();
-        intakeLift.resetToDefault();
+        // hood.resetToDefault();
         limelight.setAutoAlign(false);
     }
 }
