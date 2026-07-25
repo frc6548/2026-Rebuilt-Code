@@ -162,6 +162,7 @@ public class LimelightSubsystem extends SubsystemBase {
 
     private void updateVisionPose() {
         if (drivetrain == null) return;
+        if (!SmartDashboard.getBoolean("Vision Pose Enabled", true)) return;
 
         var alliance = DriverStation.getAlliance();
         if (alliance.isEmpty()) return;
