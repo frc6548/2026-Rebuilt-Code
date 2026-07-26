@@ -82,6 +82,12 @@ public class RobotContainer {
                 new WaitCommand(0)
             ));
 
+        NamedCommands.registerCommand("Intake down and active",
+            new SequentialCommandGroup(
+                new InstantCommand(() -> intakeLift.setPosition(IntakeLiftSubsystem.POSITION_DOWN), intakeLift),
+                new InstantCommand(() -> intake.spin(), intake)
+            ));
+
         NamedCommands.registerCommand("IntakeOn",
             new InstantCommand(() -> intake.spin(), intake));
 
@@ -188,6 +194,7 @@ public class RobotContainer {
             .whileTrue(new AlignToAprilTagCommand(limelight, hood));
 
         // reorient button
+        // if you have to uncomment this you're doing something wrong
         joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);

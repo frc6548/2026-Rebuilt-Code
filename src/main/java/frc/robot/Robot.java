@@ -53,7 +53,7 @@ public class Robot extends TimedRobot {
         // Cancel auto command when teleop starts
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
-        }
+         }
     }
 
     @Override

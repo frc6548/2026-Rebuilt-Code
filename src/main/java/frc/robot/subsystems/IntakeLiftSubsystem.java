@@ -13,7 +13,7 @@ public class IntakeLiftSubsystem extends SubsystemBase {
     private final MotionMagicVoltage positionRequest = new MotionMagicVoltage(0).withSlot(0);
 
     // Positions - UP is 0, DOWN is 48.09 (125:1 total gear ratio - three 5:1 stages)
-    public static final double POSITION_UP   =  0.0;
+    public static final double POSITION_UP   =  6.5;
     public static final double POSITION_DOWN =  48.09521484375;
     public static final double DUMP          =  17.0;  // ~35% down, tune as needed
     public static final double ZERO          =  0.0;   // Explicit reset alias for UP

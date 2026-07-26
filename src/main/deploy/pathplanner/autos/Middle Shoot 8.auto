@@ -19,6 +19,12 @@
         {
           "type": "named",
           "data": {
+            "name": "Intake down and active"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
             "name": "Shooter Sequence"
           }
         }
